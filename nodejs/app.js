@@ -125,6 +125,28 @@ app.get('/user-messages/:id', function(req, res){
   });
 });
 
+// Handle GET of user friend list resource.
+app.get('/user-friends/:id', function(req, res){
+
+  // Get the user ID from the URI.
+  var user_id = req.params.id;
+  
+  // Set our database query options.
+  var queryOptions = {
+    key: user_id,
+    descending: true
+  };
+  
+  // Query the database for the user's friends, and send an HTML representation of them.
+  db.view('microblog/user_friends', queryOptions, function(err, data) {
+    res.header('content-type', utils.negotiateContentType(req));
+    res.render('user-friends', {
+      title: user_id,
+      items: data
+    });  
+  });
+});
+
 // Handle GET of user list resource.
 app.get('/users/', function(req, res){
 
@@ -154,7 +176,8 @@ app.post('/users/', function(req, res) {
       description: req.body.description,
       imageUrl: req.body.avatar,
       websiteUrl: req.body.website,
-      dateCreated: utils.today()
+      dateCreated: utils.today(),
+      friends: req.body.friends
     }; 
    
     // Save the message object in the database.
